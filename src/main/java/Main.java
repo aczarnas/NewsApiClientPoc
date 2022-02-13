@@ -1,5 +1,11 @@
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
@@ -23,8 +29,13 @@ public class Main {
         var params = Map.of("country", "pl", "category", "business");
         var client = new ApiClient(key);
         String apiUri = "https://newsapi.org/v2/top-headlines";
-        client.sendRequest(apiUri, params);
+        var responseBody = client.sendRequest(apiUri, params);
 
-        System.out.println();
+        Type articleListType = new TypeToken<ArrayList<Article>>() {}.getType();
+        Gson gson = new Gson();
+        List<Article> outList = gson.fromJson(responseBody, articleListType);
+
+
+        System.out.println(outList.size());
     }
 }
