@@ -4,6 +4,8 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,19 +15,14 @@ public class Main {
 
     public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
         var parsedArgs = parser.parseArgs(args);
-        var hasK = parsedArgs.containsKey("-k");
         var hasKey = parsedArgs.containsKey("--key");
-        String key;
-        if (hasK) {
-            key = parsedArgs.get("-k");
-            System.out.println("Provided key: " + key);
-        } else if (hasKey) {
-            key = parsedArgs.get("--key");
-            System.out.println("Provided key: " + key);
-        } else {
-            System.out.println("Key not provided in args, please use -k=<key> or --key=<key> in program call.");
+        var hasFileName = parsedArgs.containsKey("--file");
+        if (!hasKey || !hasFileName) {
+            System.out.println("Wrong call arguments, please use '--key=<key> --file=<file name>' in program call.");
             return;
         }
+        var key = parsedArgs.get("--key");
+        var fileName = parsedArgs.get("--file");
         var params = Map.of("country", "pl", "category", "business", "pageSize", "100");
         var client = new ApiClient(key);
         String apiUri = "https://newsapi.org/v2/top-headlines";
@@ -34,6 +31,12 @@ public class Main {
         Gson gson = new Gson();
         List<Article> outList = gson.fromJson(responseBody, Response.class).getArticles();
 
+        StringBuilder sb = new StringBuilder();
+        for (var art : outList) {
+            sb.append(art.toString()).append("\n");
+        }
+
+        Files.writeString(Paths.get(fileName), sb.toString());
 
         System.out.println(outList.size());
     }
