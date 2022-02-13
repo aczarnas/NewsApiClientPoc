@@ -26,14 +26,13 @@ public class Main {
             System.out.println("Key not provided in args, please use -k=<key> or --key=<key> in program call.");
             return;
         }
-        var params = Map.of("country", "pl", "category", "business");
+        var params = Map.of("country", "pl", "category", "business", "pageSize", "100");
         var client = new ApiClient(key);
         String apiUri = "https://newsapi.org/v2/top-headlines";
         var responseBody = client.sendRequest(apiUri, params);
 
-        Type articleListType = new TypeToken<ArrayList<Article>>() {}.getType();
         Gson gson = new Gson();
-        List<Article> outList = gson.fromJson(responseBody, articleListType);
+        List<Article> outList = gson.fromJson(responseBody, Response.class).getArticles();
 
 
         System.out.println(outList.size());
